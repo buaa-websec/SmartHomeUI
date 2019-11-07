@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 from send2hass import  change_state
 lights = {'l008':1, 'l001':1, 'l004':1,'l011':1}
 
@@ -22,6 +23,8 @@ def lightsclick(button,lname):
         new_state='on'    
         lights[lname] = 1
     change_state(entity_id, new_state)
+
+
 
 
 class Ui_MainWindow(object):
@@ -382,8 +385,19 @@ class Ui_MainWindow(object):
         self.pushButton_71.clicked.connect(lambda:lightsclick(self.pushButton_71,'l001'))
         self.pushButton_79.clicked.connect(lambda:lightsclick(self.pushButton_79,'l004'))
         self.pushButton_73.clicked.connect(lambda:lightsclick(self.pushButton_73,'l011'))
-
+        
+        self.toolButton.clicked.connect(self.open_f)
+        self.toolButton.clicked.connect(self.save_f)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+       
+
+    def open_f(self):
+        fileName1, filetype = QFileDialog.getOpenFileName(self, "选取文件", "./", "All Files (*);;Text Files (*.txt)")  #设置文件扩展名过滤,注意用双分号间隔
+        #print(fileName1,filetype)
+
+    def save_f(self):
+        fileName2, ok2 = QFileDialog.getSaveFileName(self, "文件保存", "./", "All Files (*);;Text Files (*.txt)")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
