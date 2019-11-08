@@ -8,7 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog,QApplication
 from send2hass import  change_state
 import time
 
@@ -25,6 +25,7 @@ def lightsclick(button,lname):
         button.setStyleSheet("background-color: rgb(0, 255, 0);")
         new_state='on'    
         lights[lname] = 1
+    
     change_state(entity_id, new_state)
 
 
@@ -390,7 +391,7 @@ class Ui_MainWindow(object):
         self.pushButton_73.clicked.connect(lambda:lightsclick(self.pushButton_73,'l011'))
         
         self.toolButton.clicked.connect(self.open_f)
-        self.toolButton.clicked.connect(self.save_f)
+        self.toolButton_2.clicked.connect(self.save_f)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
          
@@ -405,14 +406,12 @@ class Ui_MainWindow(object):
                 f.close()
                 print('FINISHED!!!')
                 break
+            
             print(line)
             tmp = line.split('\t')
-            time.sleep(2)
-            lightsclick(buttons[tmp[1].lower()],tmp[1].lower())
-            # entity_id = 'light.'+tmp[1]
-            # new_state = tmp[2].split('\n')[0].lower()
-            # change_state(entity_id, new_state)
-
+            buttons[tmp[1].lower()].click()
+            QApplication.processEvents()
+            time.sleep(1)
 
     def save_f(self):
         fileName2, ok2 = QFileDialog.getSaveFileName(self, "文件保存", "./", "All Files (*);;Text Files (*.txt)")
