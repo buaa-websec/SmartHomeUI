@@ -4,12 +4,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog,QApplication,QMainWindow
 from send2hass import  change_state
 import sys
-import time
+import time,threading
 from datetime import datetime
 import img_rc
+import socket
+
 
 event_log = [] #操作日志缓存
 log = [] #生成日志缓存
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -450,6 +453,11 @@ class Ui_MainWindow(object):
         self.logButton.setObjectName("logButton")
         self.logButton.setCheckable(True)
 
+        self.listenButton = QtWidgets.QToolButton(self.centralwidget)
+        self.listenButton.setGeometry(QtCore.QRect(900, 350, 91, 32))
+        self.listenButton.setObjectName("listenButton")
+        self.listenButton.setCheckable(True)
+
         self.Slider_4 = QtWidgets.QSlider(self.centralwidget)
         self.Slider_4.setObjectName("T004")
         self.Slider_4.setGeometry(QtCore.QRect(150, 190, 50, 20))
@@ -592,6 +600,7 @@ class Ui_MainWindow(object):
         self.toolButton.clicked.connect(self.open_f)
         self.toolButton_2.clicked.connect(self.save_f)
         self.logButton.clicked.connect(self.logGenerator)
+        self.listenButton.clicked.connect(self.listenUDP)
 
 
         self.Slider_1.valueChanged.connect(lambda:self.changeTemp(self.Slider_1, self.label_1, self.pushButton_t001))
@@ -704,6 +713,46 @@ class Ui_MainWindow(object):
             f.close()
     
 
+    def listenUDP(self):
+        global s
+        if self.listenButton.isChecked():
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.bind(('127.0.0.1', 5678))
+            print('Bind UDP on 5678...')
+            self.listenButton.setText("退出监听")
+            t = threading.Thread(target=self.udphandle)
+            t.start()
+        else:
+            s.sendto(b'end\tend', ('127.0.0.1', 5678))
+            self.listenButton.setText("监听模式")
+       
+
+    def udphandle(self):
+        global s
+        while self.listenButton.isChecked():
+            data, addr = s.recvfrom(1024)
+            print('Received from %s:%s------%s.' %(addr[0], addr[1], data.decode('utf-8')))
+            tmp = data.decode('utf-8').split('\t')
+            if tmp[0][0] == 't':
+                slider = self.findChild(QtWidgets.QSlider,tmp[0].upper())
+                slider.setValue(int(tmp[1]))
+                QApplication.processEvents()
+            else:
+                button = self.findChild(QtWidgets.QPushButton,tmp[0])
+                if tmp[1] == 'on':
+                    button.setChecked(True)
+                if tmp[1] == 'off':
+                    button.setChecked(False)
+                QApplication.processEvents()  
+
+        print("END")
+        s.close()
+
+
+      
+            
+
+
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle("smart home UI")
         self.m047.setText("M047")
@@ -812,6 +861,7 @@ class Ui_MainWindow(object):
         self.toolButton.setText("打开日志")
         self.toolButton_2.setText("保存日志")
         self.logButton.setText("生成日志")
+        self.listenButton.setText("监听模式")
 
 
 
