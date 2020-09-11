@@ -14,11 +14,10 @@ from send2hass import change_state
 
 event_log = []  # 操作日志缓存
 log = []  # 生成日志缓存
+s = None
 
 
 class Ui_MainWindow(object):
-    def __init__(self):
-        pass
     def setupUi(self, MainWindow):
 
         MainWindow.resize(1200, 800)
@@ -86,7 +85,7 @@ class Ui_MainWindow(object):
                 self.light_button_list[-1].setText(obj_name)
                 self.light_button_list[-1].setCheckable(True)
                 self.light_button_list[-1].clicked.connect(
-                    lambda: self.lightsclick(self.sender().objectName())
+                    lambda: self.lightsClick(self.sender().objectName())
                 )
 
         self.dateEdit = QtWidgets.QDateEdit(self.centralwidget)
@@ -101,37 +100,54 @@ class Ui_MainWindow(object):
         self.timeEdit.setDisplayFormat("HH:mm:ss")
         self.timeEdit.setTime(QtCore.QTime.currentTime())
 
-        self.toolButton = QtWidgets.QToolButton(self.centralwidget)
-        self.toolButton.setGeometry(QtCore.QRect(1000, 80, 100, 35))
-        self.toolButton.setObjectName("toolButton")
-        self.toolButton.setText("打开日志")
+        self.logOpenButton = QtWidgets.QToolButton(self.centralwidget)
+        self.logOpenButton.setGeometry(QtCore.QRect(1000, 80, 100, 35))
+        self.logOpenButton.setObjectName("logOpenButton")
+        self.logOpenButton.setText("打开日志")
+        self.logOpenButton.clicked.connect(self.openLogFile)
 
-        self.toolButton_2 = QtWidgets.QToolButton(self.centralwidget)
-        self.toolButton_2.setGeometry(QtCore.QRect(1000, 40, 100, 35))
-        self.toolButton_2.setObjectName("toolButton_2")
-        self.toolButton_2.setText("保存日志")
+        self.logSaveButton = QtWidgets.QToolButton(self.centralwidget)
+        self.logSaveButton.setGeometry(QtCore.QRect(1000, 40, 100, 35))
+        self.logSaveButton.setObjectName("logSaveButton")
+        self.logSaveButton.setText("保存日志")
+        self.logSaveButton.clicked.connect(self.saveLogFile)
 
-        self.logButton = QtWidgets.QToolButton(self.centralwidget)
-        self.logButton.setGeometry(QtCore.QRect(1000, 200, 100, 35))
-        self.logButton.setObjectName("logButton")
-        self.logButton.setCheckable(True)
-        self.logButton.setText("生成日志")
+        self.logGenButton = QtWidgets.QToolButton(self.centralwidget)
+        self.logGenButton.setGeometry(QtCore.QRect(1000, 200, 100, 35))
+        self.logGenButton.setObjectName("logGenButton")
+        self.logGenButton.setCheckable(True)
+        self.logGenButton.setText("生成日志")
+        self.logGenButton.clicked.connect(self.logGenerator)
 
         self.listenButton = QtWidgets.QToolButton(self.centralwidget)
         self.listenButton.setGeometry(QtCore.QRect(1000, 400, 100, 35))
         self.listenButton.setObjectName("listenButton")
         self.listenButton.setCheckable(True)
         self.listenButton.setText("监听模式")
+        self.listenButton.clicked.connect(self.listenUDP)
+
+        self.layoutButton = QtWidgets.QToolButton(self.centralwidget)
+        self.layoutButton.setGeometry(QtCore.QRect(100, 10, 100, 35))
+        self.layoutButton.setObjectName("layoutButton")
+        self.layoutButton.setText("载入布局")
+        self.listenButton.clicked.connect(self.layoutSetup)
+
+        self.deviceButton = QtWidgets.QToolButton(self.centralwidget)
+        self.deviceButton.setGeometry(QtCore.QRect(300, 10, 100, 35))
+        self.deviceButton.setObjectName("deviceButton")
+        self.deviceButton.setText("载入设备")
+        self.deviceButton.clicked.connect(self.deviceSetup)
+
+        self.ruleButton = QtWidgets.QToolButton(self.centralwidget)
+        self.ruleButton.setGeometry(QtCore.QRect(500, 10, 100, 35))
+        self.ruleButton.setObjectName("ruleButton")
+        self.ruleButton.setText("载入规则")
+        self.ruleButton.clicked.connect(self.ruleSetup)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
-        self.toolButton.clicked.connect(self.open_f)
-        self.toolButton_2.clicked.connect(self.save_f)
-        self.logButton.clicked.connect(self.logGenerator)
-        self.listenButton.clicked.connect(self.listenUDP)
 
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setWindowTitle("smart home UI")
@@ -146,7 +162,7 @@ class Ui_MainWindow(object):
             temp_button.setStyleSheet("background-color: rgb(255, 69, 0);")
         temp_label.setText(str(value))
 
-    def open_f(self):
+    def openLogFile(self):
         fileName1, _ = QFileDialog.getOpenFileName(
             self, "选取文件", "./", "All Files (*);;Text Files (*.txt)")  # 设置文件扩展名过滤,注意用双分号间隔
         # print(fileName1,filetype)
@@ -180,14 +196,14 @@ class Ui_MainWindow(object):
             old_time = new_time
             time.sleep(t)
 
-    def save_f(self):
+    def saveLogFile(self):
         fileName2, _ = QFileDialog.getSaveFileName(
             self, "文件保存", "./", "All Files (*);;Text Files (*.txt)")
         f = open(fileName2, 'w')
         f.writelines(event_log)
         f.close()
 
-    def lightsclick(self, lname):
+    def lightsClick(self, lname):
         entity_id = 'light.'+lname
         button = self.findChild(QtWidgets.QPushButton, lname)
         if button.isChecked():  # 点击与check改变同时发生
@@ -195,7 +211,7 @@ class Ui_MainWindow(object):
         else:
             new_state = 'off'
 
-        if self.logButton.isChecked():
+        if self.logGenButton.isChecked():
             event_time = self.dateEdit.date().toString(" yyyy-MM-dd") + \
                 self.timeEdit.time().toString(" HH:mm:ss")
             log_line = event_time+'\t' + lname.upper()+'\t'+new_state.upper()+'\n'
@@ -211,7 +227,7 @@ class Ui_MainWindow(object):
         entity_id = 'sensor.'+tname[:-7]
         new_state = str(slider.value())
 
-        if self.logButton.isChecked():
+        if self.logGenButton.isChecked():
             event_time = self.dateEdit.date().toString(" yyyy-MM-dd") + \
                 self.timeEdit.time().toString(" HH:mm:ss")
             log_line = event_time+'\t' + tname+'\t'+new_state+'\n'
@@ -223,10 +239,10 @@ class Ui_MainWindow(object):
             event_log.append(log_line)
 
     def logGenerator(self):
-        if self.logButton.isChecked():
-            self.logButton.setText("完成")
+        if self.logGenButton.isChecked():
+            self.logGenButton.setText("完成")
         else:
-            self.logButton.setText("生成日志")
+            self.logGenButton.setText("生成日志")
             fileName2, _ = QFileDialog.getSaveFileName(
                 self, "文件保存", "./", "All Files (*);;Text Files (*.txt)")
             f = open(fileName2, 'w')
@@ -240,13 +256,13 @@ class Ui_MainWindow(object):
             s.bind(('127.0.0.1', 5678))
             print('Bind UDP on 5678...')
             self.listenButton.setText("退出监听")
-            t = threading.Thread(target=self.udphandle)
+            t = threading.Thread(target=self.udpHandle)
             t.start()
         else:
             s.sendto(b'end\tend', ('127.0.0.1', 5678))
             self.listenButton.setText("监听模式")
 
-    def udphandle(self):
+    def udpHandle(self):
         global s
         while self.listenButton.isChecked():
             data, addr = s.recvfrom(1024)
@@ -267,6 +283,15 @@ class Ui_MainWindow(object):
 
         print("END")
         s.close()
+
+    def layoutSetup(self):
+        pass
+
+    def deviceSetup(self):
+        pass
+
+    def ruleSetup(self):
+        pass
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
