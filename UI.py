@@ -130,7 +130,7 @@ class Ui_MainWindow(object):
         self.layoutButton.setGeometry(QtCore.QRect(100, 10, 100, 35))
         self.layoutButton.setObjectName("layoutButton")
         self.layoutButton.setText("载入布局")
-        self.listenButton.clicked.connect(self.layoutSetup)
+        self.layoutButton.clicked.connect(self.layoutSetup)
 
         self.deviceButton = QtWidgets.QToolButton(self.centralwidget)
         self.deviceButton.setGeometry(QtCore.QRect(300, 10, 100, 35))
