@@ -18,3 +18,7 @@ def change_state(entity_id, new_state):
     # response = post(url, headers=headers, json=state_data)
     # print(response.text)
 
+
+def hass_reboot():
+    #HA后台重启指令
+    print("---home assistant reboot---")

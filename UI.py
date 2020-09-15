@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import shutil
 import socket
 import sys
 import threading
@@ -10,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow
 
 import img_rc
-from send2hass import change_state
+from send2hass import change_state, hass_reboot
 
 event_log = []  # 操作日志缓存
 log = []  # 生成日志缓存
@@ -166,46 +167,51 @@ class Ui_MainWindow(object):
         temp_label.setText(str(value))
 
     def openLogFile(self):
-        fileName1, _ = QFileDialog.getOpenFileName(
-            self, "选取文件", "./", "All Files (*);;Text Files (*.txt)"
-        )  # 设置文件扩展名过滤,注意用双分号间隔
-        # print(fileName1,filetype)
-        f = open(fileName1, "r")
-        old_time = datetime.strptime(" 2100-01-01 00:00:0.0", " %Y-%m-%d %H:%M:%S.%f")
-        for line in f:
-            if len(line) < 5:
-                f.close()
-                print("FINISHED!!!")
-                break
+        log_file_name, _ = QFileDialog.getOpenFileName(
+            self, "选取日志文件", "./", "All Files (*);;Text Files (*.txt)"
+        )
+        if log_file_name:
+            f = open(log_file_name, "r")
+            old_time = datetime.strptime(
+                " 2100-01-01 00:00:0.0", " %Y-%m-%d %H:%M:%S.%f"
+            )
+            for line in f:
+                if len(line) < 5:
+                    f.close()
+                    print("FINISHED!!!")
+                    break
 
-            print(line)
-            tmp = line.split("\t")
+                print(line)
+                tmp = line.split("\t")
 
-            if tmp[1][0] == "T":
-                slider = self.findChild(QtWidgets.QSlider, tmp[1])
-                slider.setValue(int(tmp[2]))
-                QApplication.processEvents()
-            else:
-                button = self.findChild(QtWidgets.QPushButton, tmp[1].lower())
-                button.click()
-                QApplication.processEvents()
+                if tmp[1][0] == "T":
+                    slider = self.findChild(
+                        QtWidgets.QSlider, tmp[1].lower() + "_slider"
+                    )
+                    slider.setValue(int(tmp[2]))
+                    QApplication.processEvents()
+                else:
+                    button = self.findChild(QtWidgets.QPushButton, tmp[1].lower())
+                    button.click()
+                    QApplication.processEvents()
 
-            new_time = datetime.strptime(tmp[0], " %Y-%m-%d %H:%M:%S.%f")
-            if new_time >= old_time:
-                t = new_time - old_time
-                t = t.seconds
-            else:
-                t = 0
-            old_time = new_time
-            time.sleep(t)
+                new_time = datetime.strptime(tmp[0], " %Y-%m-%d %H:%M:%S.%f")
+                if new_time >= old_time:
+                    t = new_time - old_time
+                    t = t.seconds
+                else:
+                    t = 0
+                old_time = new_time
+                time.sleep(t)
 
     def saveLogFile(self):
-        fileName2, _ = QFileDialog.getSaveFileName(
-            self, "文件保存", "./", "All Files (*);;Text Files (*.txt)"
+        save_file_name, _ = QFileDialog.getSaveFileName(
+            self, "日志文件保存", "./", "All Files (*);;Text Files (*.txt)"
         )
-        f = open(fileName2, "w")
-        f.writelines(event_log)
-        f.close()
+        if save_file_name:
+            f = open(save_file_name, "w")
+            f.writelines(event_log)
+            f.close()
 
     def lightsClick(self, lname):
         entity_id = "light." + lname
@@ -253,10 +259,10 @@ class Ui_MainWindow(object):
             self.logGenButton.setText("完成")
         else:
             self.logGenButton.setText("生成日志")
-            fileName2, _ = QFileDialog.getSaveFileName(
-                self, "文件保存", "./", "All Files (*);;Text Files (*.txt)"
+            save_file_name, _ = QFileDialog.getSaveFileName(
+                self, "生成日志保存", "./", "All Files (*);;Text Files (*.txt)"
             )
-            f = open(fileName2, "w")
+            f = open(save_file_name, "w")
             f.writelines(log)
             f.close()
 
@@ -298,13 +304,25 @@ class Ui_MainWindow(object):
         s.close()
 
     def layoutSetup(self):
-        pass
+        layout_file_name, _ = QFileDialog.getOpenFileName(
+            self, "选取布局文件", "./", "All Files (*);;Text Files (*.txt)"
+        )
 
     def deviceSetup(self):
-        pass
+        device_file_name, _ = QFileDialog.getOpenFileName(
+            self, "选取设备文件", "./", "All Files (*);;Text Files (*.txt)"
+        )
+        if device_file_name:
+            shutil.copy(device_file_name, "~/.homeassistant/configuration.yaml")
+            hass_reboot()
 
     def ruleSetup(self):
-        pass
+        rule_file_name, _ = QFileDialog.getOpenFileName(
+            self, "选取规则文件", "./", "All Files (*);;Text Files (*.txt)"
+        )
+        if rule_file_name:
+            shutil.copy(rule_file_name, "~/.homeassistant/automations.yaml")
+            hass_reboot()
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
