@@ -16,81 +16,90 @@ from send2hass import change_state, hass_reboot
 event_log = []  # 操作日志缓存
 log = []  # 生成日志缓存
 s = None
+position = None
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
 
         MainWindow.resize(1200, 800)
-
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.background = QtWidgets.QLabel(self.centralwidget)
-        self.background.setGeometry(QtCore.QRect(10, -50, 1001, 871))
-        self.background.setStyleSheet("image: url(:/home/sensorlayout2.png);")
-        self.background.setObjectName("background")
+
+        if position:
+
+            self.background = QtWidgets.QLabel(self.centralwidget)
+            self.background.setGeometry(QtCore.QRect(10, -50, 1001, 871))
+            self.background.setStyleSheet("image: url(:/home/sensorlayout2.png);")
+            self.background.setObjectName("background")
+
+            for p in position.readlines():
+                obj_name, pos_x, pos_y = p.split()
+                if obj_name[0] == "t":  # 温度传感器三个控件组合
+                    self.temp_button_list.append(
+                        QtWidgets.QPushButton(self.centralwidget)
+                    )
+                    self.temp_button_list[-1].setGeometry(
+                        QtCore.QRect(int(pos_x), int(pos_y), 50, 20)
+                    )
+                    self.temp_button_list[-1].setObjectName(obj_name)
+                    self.temp_button_list[-1].setText(obj_name)
+                    self.temp_button_list[-1].setStyleSheet(
+                        "background-color: rgb(255, 255, 0);"
+                    )
+
+                    self.temp_slider_list.append(QtWidgets.QSlider(self.centralwidget))
+                    self.temp_slider_list[-1].setGeometry(
+                        QtCore.QRect(int(pos_x), int(pos_y) + 20, 50, 20)
+                    )
+                    self.temp_slider_list[-1].setObjectName(obj_name + "_slider")
+                    self.temp_slider_list[-1].setOrientation(QtCore.Qt.Horizontal)
+                    self.temp_slider_list[-1].setValue(20)
+                    self.temp_slider_list[-1].setMaximum(40)
+                    self.temp_slider_list[-1].setMinimum(0)
+
+                    self.temp_label_list.append(QtWidgets.QLabel(self.centralwidget))
+                    self.temp_label_list[-1].setGeometry(
+                        QtCore.QRect(int(pos_x) + 50, int(pos_y), 50, 20)
+                    )
+                    self.temp_label_list[-1].setObjectName(obj_name + "_label")
+                    self.temp_label_list[-1].setText(
+                        str(self.temp_slider_list[-1].value())
+                    )
+
+                    self.temp_slider_list[-1].valueChanged.connect(
+                        lambda: self.changeTemp(
+                            self.sender(),
+                            self.findChild(
+                                QtWidgets.QLabel,
+                                self.sender().objectName()[:-7] + "_label",
+                            ),
+                            self.findChild(
+                                QtWidgets.QPushButton, self.sender().objectName()[:-7]
+                            ),
+                        )
+                    )
+                    self.temp_slider_list[-1].sliderReleased.connect(
+                        lambda: self.temperatureChange(self.sender())
+                    )
+
+                else:  # 普通传感器按钮控件
+                    self.light_button_list.append(
+                        QtWidgets.QPushButton(self.centralwidget)
+                    )
+                    self.light_button_list[-1].setGeometry(
+                        QtCore.QRect(int(pos_x), int(pos_y), 50, 20)
+                    )
+                    self.light_button_list[-1].setObjectName(obj_name)
+                    self.light_button_list[-1].setText(obj_name)
+                    self.light_button_list[-1].setCheckable(True)
+                    self.light_button_list[-1].clicked.connect(
+                        lambda: self.lightsClick(self.sender().objectName())
+                    )
 
         self.temp_button_list = []
         self.temp_label_list = []
         self.temp_slider_list = []
         self.light_button_list = []
-
-        position = open("position.txt", "r")
-        for p in position.readlines():
-            obj_name, pos_x, pos_y = p.split()
-            if obj_name[0] == "t":  # 温度传感器三个控件组合
-                self.temp_button_list.append(QtWidgets.QPushButton(self.centralwidget))
-                self.temp_button_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x), int(pos_y), 50, 20)
-                )
-                self.temp_button_list[-1].setObjectName(obj_name)
-                self.temp_button_list[-1].setText(obj_name)
-                self.temp_button_list[-1].setStyleSheet(
-                    "background-color: rgb(255, 255, 0);"
-                )
-
-                self.temp_slider_list.append(QtWidgets.QSlider(self.centralwidget))
-                self.temp_slider_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x), int(pos_y) + 20, 50, 20)
-                )
-                self.temp_slider_list[-1].setObjectName(obj_name + "_slider")
-                self.temp_slider_list[-1].setOrientation(QtCore.Qt.Horizontal)
-                self.temp_slider_list[-1].setValue(20)
-                self.temp_slider_list[-1].setMaximum(40)
-                self.temp_slider_list[-1].setMinimum(0)
-
-                self.temp_label_list.append(QtWidgets.QLabel(self.centralwidget))
-                self.temp_label_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x) + 50, int(pos_y), 50, 20)
-                )
-                self.temp_label_list[-1].setObjectName(obj_name + "_label")
-                self.temp_label_list[-1].setText(str(self.temp_slider_list[-1].value()))
-
-                self.temp_slider_list[-1].valueChanged.connect(
-                    lambda: self.changeTemp(
-                        self.sender(),
-                        self.findChild(
-                            QtWidgets.QLabel, self.sender().objectName()[:-7] + "_label"
-                        ),
-                        self.findChild(
-                            QtWidgets.QPushButton, self.sender().objectName()[:-7]
-                        ),
-                    )
-                )
-                self.temp_slider_list[-1].sliderReleased.connect(
-                    lambda: self.temperatureChange(self.sender())
-                )
-
-            else:  # 普通传感器按钮控件
-                self.light_button_list.append(QtWidgets.QPushButton(self.centralwidget))
-                self.light_button_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x), int(pos_y), 50, 20)
-                )
-                self.light_button_list[-1].setObjectName(obj_name)
-                self.light_button_list[-1].setText(obj_name)
-                self.light_button_list[-1].setCheckable(True)
-                self.light_button_list[-1].clicked.connect(
-                    lambda: self.lightsClick(self.sender().objectName())
-                )
 
         self.dateEdit = QtWidgets.QDateEdit(self.centralwidget)
         self.dateEdit.setGeometry(QtCore.QRect(1000, 250, 180, 30))
@@ -304,9 +313,13 @@ class Ui_MainWindow(object):
         s.close()
 
     def layoutSetup(self):
+        global position
         layout_file_name, _ = QFileDialog.getOpenFileName(
             self, "选取布局文件", "./", "All Files (*);;Text Files (*.txt)"
         )
+        if layout_file_name:
+            position = open(layout_file_name, "r")
+            self.setupUi(self)
 
     def deviceSetup(self):
         device_file_name, _ = QFileDialog.getOpenFileName(

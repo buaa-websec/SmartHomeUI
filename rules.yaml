@@ -1,0 +1,390 @@
+- id: '1552877219391'
+  alias: email-light-on
+  trigger:
+  - above: '0'
+    entity_id: sensor.zssstchsq163com
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      color_name: green
+      entity_id: light.yeelight
+      flash: short
+    service: light.turn_on
+- id: '1555495803470'
+  alias: click-email-lightwillon
+  trigger:
+  - event_data: {}
+    event_type: click
+    platform: event
+  condition: []
+  action:
+  - data:
+      message: I try my click-email automation. Then the light will on!
+      title: clickemail
+    service: notify.my_email
+- id: '1556616280126'
+  alias: motion-click
+  trigger:
+  - entity_id: binary_sensor.motion_sensor_158d0001c2f383
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - event: click
+    event_data: {}
+- id: '1553222009410'
+  alias: motion-light-on
+  trigger:
+  - entity_id: binary_sensor.motion_sensor_158d0001c2f383
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    data:
+      entity_id: light.yeelight_bedside_7811dc90b745
+      color_name: green
+- id: '1553222440457'
+  alias: click-light-on
+  trigger:
+  - event_data: {}
+    event_type: click
+    platform: event
+  condition:
+  - condition: state
+    entity_id: light.yeelight_bedside_7811dc90b745
+    state: 'off'
+  action:
+  - delay: '1'
+  - data:
+      color_name: yellow
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_on
+- id: '1553490824917'
+  alias: click-light-off
+  trigger:
+  - event_data: {}
+    event_type: click
+    platform: event
+  condition:
+  - condition: state
+    entity_id: light.yeelight_bedside_7811dc90b745
+    state: 'on'
+  action:
+  - data:
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_off
+- id: '1568122203681'
+  alias: humidity-alert
+  trigger:
+  - above: '80'
+    below: '10'
+    entity_id: sensor.humiditysensor
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      message: humidity is above or under a T!
+      title: humidity-alert
+    service: notify.my_email
+- id: '1568122317495'
+  alias: humiditfierON
+  trigger:
+  - below: '30'
+    entity_id: sensor.humiditysensor
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      entity_id: light.humidifier
+    service: light.turn_on
+- id: '1568122356160'
+  alias: humiditfierOFF
+  trigger:
+  - above: '60'
+    entity_id: sensor.humiditysensor
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      entity_id: light.humidifier
+    service: light.turn_off
+- id: '1568170521195'
+  alias: brightDarkSunset
+  trigger:
+  - entity_id: binary_sensor.motion_sensor_158d0001c2f383
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - below: '10'
+    condition: numeric_state
+    entity_id: sensor.illuminancemeter
+  - after: sunset
+    before: sunrise
+    condition: sun
+  action:
+  - data:
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_on
+  - data:
+      entity_id: light.dimmerswitch
+    service: light.turn_on
+- id: '1568196718090'
+  alias: brightDarkSunsetOff
+  trigger:
+  - above: '80'
+    entity_id: sensor.illuminancemeter
+    platform: numeric_state
+  - entity_id: binary_sensor.motion_sensor_158d0001c2f383
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - delay: '1'
+  - alias: ''
+    data:
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_off
+  - data:
+      entity_id: light.dimmerswitch
+    service: light.turn_off
+- id: '1568280767276'
+  alias: goodnightUbiLightOff
+  trigger:
+  - entity_id: light.voicegoodnight
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: light.yeelight_bedside_7811dc90b745
+    state: 'on'
+  action:
+  - data:
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_off
+- id: '1568290670045'
+  alias: ubiDoorUbi
+  trigger:
+  - entity_id: light.voicegoodnight
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.door_window_sensor_158d0001bb3d26
+    state: 'on'
+  action:
+  - data:
+      entity_id: light.ubi
+    service: light.turn_on
+- id: '1568292926347'
+  alias: jenkinsLight
+  trigger:
+  - entity_id: light.jenkins
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data:
+      entity_id: light.jenkins
+    service: light.turn_on
+- id: '1568293038984'
+  alias: jenkinsLightOff
+  trigger:
+  - entity_id: light.jenkins
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.jenkins
+    service: light.turn_off
+- id: '1568431860875'
+  alias: obythingItunes
+  trigger:
+  - entity_id: light.obything
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.itunes
+    service: light.turn_on
+- id: '1568433796669'
+  alias: workAtHome
+  trigger:
+  - above: '10'
+    entity_id: sensor.time
+    platform: numeric_state
+  condition:
+  - condition: state
+    entity_id: sensor.presencesensor
+    state: 'on'
+  - above: '1'
+    below: '5'
+    condition: numeric_state
+    entity_id: sensor.date
+  action:
+  - data:
+      entity_id: light.workathome
+    service: light.turn_on
+- id: '1568883448316'
+  alias: doorOpenCheck
+  trigger:
+  - at: '10:00:00'
+    platform: time
+  condition:
+  - condition: state
+    entity_id: sensor.doorsensor
+    state: 'on'
+  action:
+  - alias: ''
+    data:
+      message: The door is open!
+      title: door-open
+    service: notify.my_email
+- id: '1568896684462'
+  alias: doorLockMessage
+  trigger:
+  - at: '10:00:00'
+    platform: time
+  condition:
+  - condition: state
+    entity_id: sensor.doorsensor
+    state: 'off'
+  action:
+  - data:
+      message: Locking the door due to scheduled lock.
+      title: door locked
+    service: notify.my_email
+  - alias: ''
+    data:
+      entity_id: light.doorlock
+    service: light.turn_on
+- id: '1571213067734'
+  alias: SprayerON
+  description: ''
+  trigger:
+  - entity_id: light.sprayer
+    for: 'minutes: 10'
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - alias: ''
+    data:
+      entity_id: light.sprayer
+    service: light.turn_off
+- id: '1571213176803'
+  alias: SprayerOFF
+  description: ''
+  trigger:
+  - entity_id: light.sprayer
+    for: '5'
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.sprayer
+    service: light.turn_off
+- id: '1571213588341'
+  alias: lockdoor
+  description: ''
+  trigger:
+  - entity_id: sensor.doorsensor
+    for: minutes:10
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data:
+      entity_id: light.doorlock
+    service: light.turn_on
+- id: '1571213710020'
+  alias: unlockdoor
+  description: ''
+  trigger:
+  - entity_id: sensor.doorsensor
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.doorlock
+    service: light.turn_off
+- id: '1571214137243'
+  alias: SmartTurnON
+  description: ''
+  trigger:
+  - entity_id: sensor.presencesensor
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - after: '16:00:00'
+    before: '22:00:00'
+    condition: time
+  action:
+  - data:
+      color_name: yellow
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_on
+- id: '1571214646562'
+  alias: monitor-on-sense
+  description: ''
+  trigger:
+  - entity_id: sensor.accelerationsensor
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      color_name: yellow
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_on
+- id: '1571214820280'
+  alias: light5min
+  description: ''
+  trigger:
+  - entity_id: light.yeelight_bedside_7811dc90b745
+    for: 'minutes: 5'
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_off
+- id: '1571215037045'
+  alias: autolightOFF
+  description: ''
+  trigger:
+  - entity_id: sensor.presencesensor
+    for: 'minutes: 10'
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: sensor.motionsensor
+    state: 'OFF'
+  action:
+  - data:
+      entity_id: light.yeelight_bedside_7811dc90b745
+    service: light.turn_off
