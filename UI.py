@@ -36,51 +36,54 @@ class Ui_MainWindow(object):
         position = open("position.txt", "r")
         for p in position.readlines():
             obj_name, pos_x, pos_y = p.split()
-            if obj_name[0] == 't':  # 温度传感器三个控件组合
-                self.temp_button_list.append(
-                    QtWidgets.QPushButton(self.centralwidget))
+            if obj_name[0] == "t":  # 温度传感器三个控件组合
+                self.temp_button_list.append(QtWidgets.QPushButton(self.centralwidget))
                 self.temp_button_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x), int(pos_y), 50, 20))
+                    QtCore.QRect(int(pos_x), int(pos_y), 50, 20)
+                )
                 self.temp_button_list[-1].setObjectName(obj_name)
                 self.temp_button_list[-1].setText(obj_name)
                 self.temp_button_list[-1].setStyleSheet(
-                    "background-color: rgb(255, 255, 0);")
+                    "background-color: rgb(255, 255, 0);"
+                )
 
-                self.temp_slider_list.append(
-                    QtWidgets.QSlider(self.centralwidget))
+                self.temp_slider_list.append(QtWidgets.QSlider(self.centralwidget))
                 self.temp_slider_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x), int(pos_y)+20, 50, 20))
-                self.temp_slider_list[-1].setObjectName(obj_name+'_slider')
+                    QtCore.QRect(int(pos_x), int(pos_y) + 20, 50, 20)
+                )
+                self.temp_slider_list[-1].setObjectName(obj_name + "_slider")
                 self.temp_slider_list[-1].setOrientation(QtCore.Qt.Horizontal)
                 self.temp_slider_list[-1].setValue(20)
                 self.temp_slider_list[-1].setMaximum(40)
                 self.temp_slider_list[-1].setMinimum(0)
 
-                self.temp_label_list.append(
-                    QtWidgets.QLabel(self.centralwidget))
+                self.temp_label_list.append(QtWidgets.QLabel(self.centralwidget))
                 self.temp_label_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x)+50, int(pos_y), 50, 20))
-                self.temp_label_list[-1].setObjectName(obj_name+'_label')
-                self.temp_label_list[-1].setText(
-                    str(self.temp_slider_list[-1].value()))
+                    QtCore.QRect(int(pos_x) + 50, int(pos_y), 50, 20)
+                )
+                self.temp_label_list[-1].setObjectName(obj_name + "_label")
+                self.temp_label_list[-1].setText(str(self.temp_slider_list[-1].value()))
 
                 self.temp_slider_list[-1].valueChanged.connect(
                     lambda: self.changeTemp(
                         self.sender(),
                         self.findChild(
-                            QtWidgets.QLabel, self.sender().objectName()[:-7]+"_label"),
-                        self.findChild(QtWidgets.QPushButton,
-                                       self.sender().objectName()[:-7])
+                            QtWidgets.QLabel, self.sender().objectName()[:-7] + "_label"
+                        ),
+                        self.findChild(
+                            QtWidgets.QPushButton, self.sender().objectName()[:-7]
+                        ),
                     )
                 )
                 self.temp_slider_list[-1].sliderReleased.connect(
-                    lambda: self.temperatureChange(self.sender()))
+                    lambda: self.temperatureChange(self.sender())
+                )
 
             else:  # 普通传感器按钮控件
-                self.light_button_list.append(
-                    QtWidgets.QPushButton(self.centralwidget))
+                self.light_button_list.append(QtWidgets.QPushButton(self.centralwidget))
                 self.light_button_list[-1].setGeometry(
-                    QtCore.QRect(int(pos_x), int(pos_y), 50, 20))
+                    QtCore.QRect(int(pos_x), int(pos_y), 50, 20)
+                )
                 self.light_button_list[-1].setObjectName(obj_name)
                 self.light_button_list[-1].setText(obj_name)
                 self.light_button_list[-1].setCheckable(True)
@@ -164,21 +167,21 @@ class Ui_MainWindow(object):
 
     def openLogFile(self):
         fileName1, _ = QFileDialog.getOpenFileName(
-            self, "选取文件", "./", "All Files (*);;Text Files (*.txt)")  # 设置文件扩展名过滤,注意用双分号间隔
+            self, "选取文件", "./", "All Files (*);;Text Files (*.txt)"
+        )  # 设置文件扩展名过滤,注意用双分号间隔
         # print(fileName1,filetype)
-        f = open(fileName1, 'r')
-        old_time = datetime.strptime(
-            ' 2100-01-01 00:00:0.0', " %Y-%m-%d %H:%M:%S.%f")
+        f = open(fileName1, "r")
+        old_time = datetime.strptime(" 2100-01-01 00:00:0.0", " %Y-%m-%d %H:%M:%S.%f")
         for line in f:
             if len(line) < 5:
                 f.close()
-                print('FINISHED!!!')
+                print("FINISHED!!!")
                 break
 
             print(line)
-            tmp = line.split('\t')
+            tmp = line.split("\t")
 
-            if tmp[1][0] == 'T':
+            if tmp[1][0] == "T":
                 slider = self.findChild(QtWidgets.QSlider, tmp[1])
                 slider.setValue(int(tmp[2]))
                 QApplication.processEvents()
@@ -198,44 +201,51 @@ class Ui_MainWindow(object):
 
     def saveLogFile(self):
         fileName2, _ = QFileDialog.getSaveFileName(
-            self, "文件保存", "./", "All Files (*);;Text Files (*.txt)")
-        f = open(fileName2, 'w')
+            self, "文件保存", "./", "All Files (*);;Text Files (*.txt)"
+        )
+        f = open(fileName2, "w")
         f.writelines(event_log)
         f.close()
 
     def lightsClick(self, lname):
-        entity_id = 'light.'+lname
+        entity_id = "light." + lname
         button = self.findChild(QtWidgets.QPushButton, lname)
         if button.isChecked():  # 点击与check改变同时发生
-            new_state = 'on'
+            new_state = "on"
         else:
-            new_state = 'off'
+            new_state = "off"
 
         if self.logGenButton.isChecked():
-            event_time = self.dateEdit.date().toString(" yyyy-MM-dd") + \
-                self.timeEdit.time().toString(" HH:mm:ss")
-            log_line = event_time+'\t' + lname.upper()+'\t'+new_state.upper()+'\n'
+            event_time = self.dateEdit.date().toString(
+                " yyyy-MM-dd"
+            ) + self.timeEdit.time().toString(" HH:mm:ss")
+            log_line = (
+                event_time + "\t" + lname.upper() + "\t" + new_state.upper() + "\n"
+            )
             log.append(log_line)
         else:
             event_time = time.strftime(" %Y-%m-%d %H:%M:%S", time.localtime())
             change_state(entity_id, new_state)
-            log_line = event_time+'\t' + lname.upper()+'\t'+new_state.upper()+'\n'
+            log_line = (
+                event_time + "\t" + lname.upper() + "\t" + new_state.upper() + "\n"
+            )
             event_log.append(log_line)
 
     def temperatureChange(self, slider):
         tname = slider.objectName()
-        entity_id = 'sensor.'+tname[:-7]
+        entity_id = "sensor." + tname[:-7]
         new_state = str(slider.value())
 
         if self.logGenButton.isChecked():
-            event_time = self.dateEdit.date().toString(" yyyy-MM-dd") + \
-                self.timeEdit.time().toString(" HH:mm:ss")
-            log_line = event_time+'\t' + tname+'\t'+new_state+'\n'
+            event_time = self.dateEdit.date().toString(
+                " yyyy-MM-dd"
+            ) + self.timeEdit.time().toString(" HH:mm:ss")
+            log_line = event_time + "\t" + tname + "\t" + new_state + "\n"
             log.append(log_line)
         else:
             event_time = time.strftime(" %Y-%m-%d %H:%M:%S", time.localtime())
             change_state(entity_id, new_state)
-            log_line = event_time+'\t' + tname+'\t'+new_state+'\n'
+            log_line = event_time + "\t" + tname + "\t" + new_state + "\n"
             event_log.append(log_line)
 
     def logGenerator(self):
@@ -244,8 +254,9 @@ class Ui_MainWindow(object):
         else:
             self.logGenButton.setText("生成日志")
             fileName2, _ = QFileDialog.getSaveFileName(
-                self, "文件保存", "./", "All Files (*);;Text Files (*.txt)")
-            f = open(fileName2, 'w')
+                self, "文件保存", "./", "All Files (*);;Text Files (*.txt)"
+            )
+            f = open(fileName2, "w")
             f.writelines(log)
             f.close()
 
@@ -253,31 +264,33 @@ class Ui_MainWindow(object):
         global s
         if self.listenButton.isChecked():
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.bind(('127.0.0.1', 5678))
-            print('Bind UDP on 5678...')
+            s.bind(("127.0.0.1", 5678))
+            print("Bind UDP on 5678...")
             self.listenButton.setText("退出监听")
             t = threading.Thread(target=self.udpHandle)
             t.start()
         else:
-            s.sendto(b'end\tend', ('127.0.0.1', 5678))
+            s.sendto(b"end\tend", ("127.0.0.1", 5678))
             self.listenButton.setText("监听模式")
 
     def udpHandle(self):
         global s
         while self.listenButton.isChecked():
             data, addr = s.recvfrom(1024)
-            print('Received from %s:%s------%s.' %
-                  (addr[0], addr[1], data.decode('utf-8')))
-            tmp = data.decode('utf-8').split('\t')
-            if tmp[0][0] == 't':
+            print(
+                "Received from %s:%s------%s."
+                % (addr[0], addr[1], data.decode("utf-8"))
+            )
+            tmp = data.decode("utf-8").split("\t")
+            if tmp[0][0] == "t":
                 slider = self.findChild(QtWidgets.QSlider, tmp[0].upper())
                 slider.setValue(int(tmp[1]))
                 QApplication.processEvents()
             else:
                 button = self.findChild(QtWidgets.QPushButton, tmp[0])
-                if tmp[1] == 'on':
+                if tmp[1] == "on":
                     button.setChecked(True)
-                if tmp[1] == 'off':
+                if tmp[1] == "off":
                     button.setChecked(False)
                 QApplication.processEvents()
 
@@ -300,7 +313,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     myWin = MyMainWindow()
     myWin.show()
