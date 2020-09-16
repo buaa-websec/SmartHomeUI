@@ -24,6 +24,73 @@ class Ui_MainWindow(object):
 
         MainWindow.resize(1200, 800)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setWindowTitle("smart home UI")
+
+        self.temp_button_list = []
+        self.temp_label_list = []
+        self.temp_slider_list = []
+        self.light_button_list = []
+
+        self.dateEdit = QtWidgets.QDateEdit(self.centralwidget)
+        self.dateEdit.setGeometry(QtCore.QRect(1000, 250, 180, 30))
+        self.dateEdit.setObjectName("dateEdit")
+        self.dateEdit.setDisplayFormat("yyyy-MM-dd")
+        self.dateEdit.setDate(QtCore.QDate.currentDate())
+
+        self.timeEdit = QtWidgets.QTimeEdit(self.centralwidget)
+        self.timeEdit.setGeometry(QtCore.QRect(1000, 300, 180, 30))
+        self.timeEdit.setObjectName("timeEdit")
+        self.timeEdit.setDisplayFormat("HH:mm:ss")
+        self.timeEdit.setTime(QtCore.QTime.currentTime())
+
+        self.logOpenButton = QtWidgets.QToolButton(self.centralwidget)
+        self.logOpenButton.setGeometry(QtCore.QRect(1000, 80, 100, 35))
+        self.logOpenButton.setObjectName("logOpenButton")
+        self.logOpenButton.setText("打开日志")
+        self.logOpenButton.clicked.connect(self.openLogFile)
+
+        self.logSaveButton = QtWidgets.QToolButton(self.centralwidget)
+        self.logSaveButton.setGeometry(QtCore.QRect(1000, 40, 100, 35))
+        self.logSaveButton.setObjectName("logSaveButton")
+        self.logSaveButton.setText("保存日志")
+        self.logSaveButton.clicked.connect(self.saveLogFile)
+
+        self.logGenButton = QtWidgets.QToolButton(self.centralwidget)
+        self.logGenButton.setGeometry(QtCore.QRect(1000, 200, 100, 35))
+        self.logGenButton.setObjectName("logGenButton")
+        self.logGenButton.setCheckable(True)
+        self.logGenButton.setText("生成日志")
+        self.logGenButton.clicked.connect(self.logGenerator)
+
+        self.listenButton = QtWidgets.QToolButton(self.centralwidget)
+        self.listenButton.setGeometry(QtCore.QRect(1000, 400, 100, 35))
+        self.listenButton.setObjectName("listenButton")
+        self.listenButton.setCheckable(True)
+        self.listenButton.setText("监听模式")
+        self.listenButton.clicked.connect(self.listenUDP)
+
+        self.layoutButton = QtWidgets.QToolButton(self.centralwidget)
+        self.layoutButton.setGeometry(QtCore.QRect(100, 10, 100, 35))
+        self.layoutButton.setObjectName("layoutButton")
+        self.layoutButton.setText("载入布局")
+        self.layoutButton.clicked.connect(self.layoutSetup)
+
+        self.deviceButton = QtWidgets.QToolButton(self.centralwidget)
+        self.deviceButton.setGeometry(QtCore.QRect(300, 10, 100, 35))
+        self.deviceButton.setObjectName("deviceButton")
+        self.deviceButton.setText("载入设备")
+        self.deviceButton.clicked.connect(self.deviceSetup)
+
+        self.ruleButton = QtWidgets.QToolButton(self.centralwidget)
+        self.ruleButton.setGeometry(QtCore.QRect(500, 10, 100, 35))
+        self.ruleButton.setObjectName("ruleButton")
+        self.ruleButton.setText("载入规则")
+        self.ruleButton.clicked.connect(self.ruleSetup)
 
         if position:
 
@@ -95,75 +162,6 @@ class Ui_MainWindow(object):
                     self.light_button_list[-1].clicked.connect(
                         lambda: self.lightsClick(self.sender().objectName())
                     )
-
-        self.temp_button_list = []
-        self.temp_label_list = []
-        self.temp_slider_list = []
-        self.light_button_list = []
-
-        self.dateEdit = QtWidgets.QDateEdit(self.centralwidget)
-        self.dateEdit.setGeometry(QtCore.QRect(1000, 250, 180, 30))
-        self.dateEdit.setObjectName("dateEdit")
-        self.dateEdit.setDisplayFormat("yyyy-MM-dd")
-        self.dateEdit.setDate(QtCore.QDate.currentDate())
-
-        self.timeEdit = QtWidgets.QTimeEdit(self.centralwidget)
-        self.timeEdit.setGeometry(QtCore.QRect(1000, 300, 180, 30))
-        self.timeEdit.setObjectName("timeEdit")
-        self.timeEdit.setDisplayFormat("HH:mm:ss")
-        self.timeEdit.setTime(QtCore.QTime.currentTime())
-
-        self.logOpenButton = QtWidgets.QToolButton(self.centralwidget)
-        self.logOpenButton.setGeometry(QtCore.QRect(1000, 80, 100, 35))
-        self.logOpenButton.setObjectName("logOpenButton")
-        self.logOpenButton.setText("打开日志")
-        self.logOpenButton.clicked.connect(self.openLogFile)
-
-        self.logSaveButton = QtWidgets.QToolButton(self.centralwidget)
-        self.logSaveButton.setGeometry(QtCore.QRect(1000, 40, 100, 35))
-        self.logSaveButton.setObjectName("logSaveButton")
-        self.logSaveButton.setText("保存日志")
-        self.logSaveButton.clicked.connect(self.saveLogFile)
-
-        self.logGenButton = QtWidgets.QToolButton(self.centralwidget)
-        self.logGenButton.setGeometry(QtCore.QRect(1000, 200, 100, 35))
-        self.logGenButton.setObjectName("logGenButton")
-        self.logGenButton.setCheckable(True)
-        self.logGenButton.setText("生成日志")
-        self.logGenButton.clicked.connect(self.logGenerator)
-
-        self.listenButton = QtWidgets.QToolButton(self.centralwidget)
-        self.listenButton.setGeometry(QtCore.QRect(1000, 400, 100, 35))
-        self.listenButton.setObjectName("listenButton")
-        self.listenButton.setCheckable(True)
-        self.listenButton.setText("监听模式")
-        self.listenButton.clicked.connect(self.listenUDP)
-
-        self.layoutButton = QtWidgets.QToolButton(self.centralwidget)
-        self.layoutButton.setGeometry(QtCore.QRect(100, 10, 100, 35))
-        self.layoutButton.setObjectName("layoutButton")
-        self.layoutButton.setText("载入布局")
-        self.layoutButton.clicked.connect(self.layoutSetup)
-
-        self.deviceButton = QtWidgets.QToolButton(self.centralwidget)
-        self.deviceButton.setGeometry(QtCore.QRect(300, 10, 100, 35))
-        self.deviceButton.setObjectName("deviceButton")
-        self.deviceButton.setText("载入设备")
-        self.deviceButton.clicked.connect(self.deviceSetup)
-
-        self.ruleButton = QtWidgets.QToolButton(self.centralwidget)
-        self.ruleButton.setGeometry(QtCore.QRect(500, 10, 100, 35))
-        self.ruleButton.setObjectName("ruleButton")
-        self.ruleButton.setText("载入规则")
-        self.ruleButton.clicked.connect(self.ruleSetup)
-
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        MainWindow.setWindowTitle("smart home UI")
 
     def changeTemp(self, slider, temp_label, temp_button):
         value = slider.value()
