@@ -1,7 +1,13 @@
 import sys
-
+import img_rc
 from PyQt5.QtCore import QPoint, QRect
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PyQt5.QtWidgets import (
+    QApplication,
+    QFileDialog,
+    QInputDialog,
+    QPushButton,
+    QWidget,
+)
 
 
 class DraggableButton(QPushButton):
@@ -9,7 +15,7 @@ class DraggableButton(QPushButton):
         super().__init__(title, parent)
         self.btnPosition = [0, 0]
         self.abs_pos = QPoint(0, 0)
-        self.setGeometry(QRect(0, 0, 50, 20))
+        self.setGeometry(QRect(300, 50, 50, 20))
 
     def mousePressEvent(self, e):
         self.btnPosition[0] = e.x()
@@ -31,6 +37,7 @@ class builder_ui(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.btn_list = []
 
     def initUI(self):
         self.setWindowTitle("Layout Generator")
@@ -58,15 +65,33 @@ class builder_ui(QWidget):
         self.layout_save_btn.clicked.connect(self.layoutSave)
 
     def backgroundSet(self):
-        pass
+        self.devices.setStyleSheet("image: url(:/home/sensorlayout2.png);")
 
     def deviceAdd(self):
-        self.testbtn = DraggableButton("test", self.devices)
-        QApplication.processEvents()
-        pass
+        device_name, ok = QInputDialog.getText(self, "设备选项", "设备名称:")
+
+        if device_name[0] in ["t", "l", "m", "d", "r", "i", "f", "e"]:
+            print(device_name)
+            self.btn_list.append(DraggableButton(device_name, self.devices))
+            self.btn_list[-1].setObjectName(device_name)
+            self.btn_list[-1].show()
+
+        # elif device_name[0] == "t":
+
+        else:
+            print("无效命名")
 
     def layoutSave(self):
-        pass
+        layout = []
+        for btn in self.btn_list:
+            layout.append(btn.objectName()+"\t"+str(btn.x())+"\t"+str(btn.y())+"\n")
+        save_file_name, _ = QFileDialog.getSaveFileName(
+            self, "设备文件保存", "./", "All Files (*);;Text Files (*.txt)"
+        )
+        if save_file_name:
+            f = open(save_file_name, "w")
+            f.writelines(layout)
+            f.close()
 
 
 if __name__ == "__main__":
