@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import shutil
 import socket
 import sys
@@ -7,10 +6,10 @@ import threading
 import time
 from datetime import datetime
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow
 
-import img_rc
 from send2hass import change_state, hass_reboot
 
 event_log = []  # 操作日志缓存
@@ -21,9 +20,9 @@ position = None
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-
-        MainWindow.resize(1200, 800)
+        MainWindow.resize(1200, 850)  # 预留出标题栏
         self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.resize(1200, 800)
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -93,15 +92,17 @@ class Ui_MainWindow(object):
         self.ruleButton.clicked.connect(self.ruleSetup)
 
         if position:
-
-            self.background = QtWidgets.QLabel(self.centralwidget)
-            self.background.setGeometry(QtCore.QRect(10, -50, 1001, 871))
-            self.background.setStyleSheet("image: url(:/home/sensorlayout2.png);")
-            self.background.setObjectName("background")
-
             for p in position.readlines():
                 obj_name, pos_x, pos_y = p.split()
-                if obj_name[0] == "t":  # 温度传感器三个控件组合
+
+                if obj_name == "background":
+                    self.background = QtWidgets.QLabel(self.centralwidget)
+                    self.background.setGeometry(QtCore.QRect(0, 0, 1000, 800))
+                    self.background.setScaledContents(True)
+                    self.background.setPixmap(QPixmap(pos_y))  # pos_y此处为路径
+                    self.background.setObjectName("background")
+
+                elif obj_name[0] == "t":  # 温度传感器三个控件组合
                     self.temp_button_list.append(
                         QtWidgets.QPushButton(self.centralwidget)
                     )

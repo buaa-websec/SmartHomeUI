@@ -1,12 +1,14 @@
 import sys
-import img_rc
+
 from PyQt5.QtCore import QPoint, QRect
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
     QInputDialog,
     QPushButton,
     QWidget,
+    QLabel,
 )
 
 
@@ -44,7 +46,11 @@ class builder_ui(QWidget):
         self.resize(1200, 800)
 
         self.devices = QWidget(self)
-        self.devices.resize(1200, 800)
+        self.devices.resize(1000, 800)
+
+        self.background = QLabel(self.devices)
+        self.background.setGeometry(QRect(0, 0, 1000, 800))
+        self.background.setScaledContents(True)
 
         self.set_bg_btn = QPushButton(self)
         self.set_bg_btn.setGeometry(QRect(100, 10, 100, 35))
@@ -65,7 +71,11 @@ class builder_ui(QWidget):
         self.layout_save_btn.clicked.connect(self.layoutSave)
 
     def backgroundSet(self):
-        self.devices.setStyleSheet("image: url(:/home/sensorlayout2.png);")
+
+        self.background_file_name, _ = QFileDialog.getOpenFileName(
+            self, "选取布局文件", "./", "All Files (*);;Image Files (*.jpg *.png)"
+        )
+        self.background.setPixmap(QPixmap(self.background_file_name))
 
     def deviceAdd(self):
         device_name, ok = QInputDialog.getText(self, "设备选项", "设备名称:")
@@ -84,12 +94,17 @@ class builder_ui(QWidget):
     def layoutSave(self):
         layout = []
         for btn in self.btn_list:
-            layout.append(btn.objectName()+"\t"+str(btn.x())+"\t"+str(btn.y())+"\n")
+            layout.append(
+                btn.objectName() + "\t" + str(btn.x()) + "\t" + str(btn.y()) + "\n"
+            )
         save_file_name, _ = QFileDialog.getSaveFileName(
             self, "设备文件保存", "./", "All Files (*);;Text Files (*.txt)"
         )
         if save_file_name:
             f = open(save_file_name, "w")
+            f.write(
+                "background" + "\tpath\t" + self.background_file_name + "\n"
+            )  # 补全三个值，格式对应
             f.writelines(layout)
             f.close()
 
