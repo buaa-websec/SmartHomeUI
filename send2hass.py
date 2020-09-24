@@ -20,5 +20,6 @@ def change_state(entity_id, new_state):
 
 
 def hass_reboot():
-    #HA后台重启指令
+    change_state("homeassistant.turn_on", "on")
+    # HA后台重启指令
     print("---home assistant reboot---")
