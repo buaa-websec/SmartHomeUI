@@ -8,6 +8,10 @@ A GUI for showing the data from Home Assistant and controlling virtual devices o
 
 ![builder](IMG/builder.png)  
 
+* Drag the widget to set positon
+
+![drag](IMG/drag.png)
+
 * Run UI.py to show the window.Please load home layout file (e.g. position.txt) first, then you can see the devices.
 
 ![UI](IMG/UI.png)

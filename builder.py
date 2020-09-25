@@ -94,17 +94,13 @@ class builder_ui(QWidget):
     def layoutSave(self):
         layout = []
         for btn in self.btn_list:
-            layout.append(
-                btn.objectName() + "\t" + str(btn.x()) + "\t" + str(btn.y()) + "\n"
-            )
+            layout.append(f"{btn.objectName()}\t{btn.x()}\t{btn.y()}\n")
         save_file_name, _ = QFileDialog.getSaveFileName(
             self, "设备文件保存", "./", "All Files (*);;Text Files (*.txt)"
         )
         if save_file_name:
             f = open(save_file_name, "w")
-            f.write(
-                "background" + "\tpath\t" + self.background_file_name + "\n"
-            )  # 补全三个值，格式对应
+            f.write(f"background\tpath\t{self.background_file_name}\n")  # 补全三个值，格式对应
             f.writelines(layout)
             f.close()
 
